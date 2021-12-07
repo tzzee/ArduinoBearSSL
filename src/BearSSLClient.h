@@ -48,6 +48,9 @@ public:
   BearSSLClient(Client& client);
   BearSSLClient(Client& client, const br_x509_trust_anchor* myTAs, int myNumTAs);
   BearSSLClient(Client* client, const br_x509_trust_anchor* myTAs, int myNumTAs);
+  BearSSLClient(Client& client, const char* caPem);
+  BearSSLClient(Client* client, const char* caPem);
+
   virtual ~BearSSLClient();
 
 
@@ -100,6 +103,7 @@ private:
   Client* _client;
   const br_x509_trust_anchor* _TAs;
   int _numTAs;
+  bool _taDynamicallyDecode;
 
   bool _noSNI;
 

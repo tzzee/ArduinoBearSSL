@@ -30,6 +30,7 @@
 
 #include "BearSSLTrustAnchors.h"
 #include "utility/eccX08_asn1.h"
+#include "utility/pem_to_trust_anchors.h"
 
 #include "BearSSLClient.h"
 
@@ -47,6 +48,7 @@ BearSSLClient::BearSSLClient(Client* client, const br_x509_trust_anchor* myTAs, 
   _client(client),
   _TAs(myTAs),
   _numTAs(myNumTAs),
+  _taDynamicallyDecode(false),
   _noSNI(false),
   _skeyDecoder(NULL),
   _ecChainLen(0)
@@ -70,8 +72,23 @@ BearSSLClient::BearSSLClient(Client* client, const br_x509_trust_anchor* myTAs, 
   _ecCertDynamic = false;
 }
 
+BearSSLClient::BearSSLClient(Client& client, const char* caPem)
+: BearSSLClient(&client, caPem)
+{
+}
+
+BearSSLClient::BearSSLClient(Client* client, const char* caPem)
+: BearSSLClient(client, from_pem_to_trust_anchors(caPem, strlen(caPem), &_numTAs), _numTAs)
+{
+  _taDynamicallyDecode = true;
+}
+
 BearSSLClient::~BearSSLClient()
 {
+  if (_taDynamicallyDecode) {
+    free_trust_anchors(const_cast<br_x509_trust_anchor *>(_TAs), _numTAs);
+  }
+
   if (_ecCertDynamic && _ecCert[0].data) {
     free(_ecCert[0].data);
     _ecCert[0].data = NULL;
