@@ -35,16 +35,26 @@ AES128Class::~AES128Class()
 
 int AES128Class::runEncryption(uint8_t *key, size_t size, uint8_t *input, size_t block_size, uint8_t *iv)
 {
+#ifdef ARDUINO_ARCH_ESP32
+  br_aes_esp32_cbcenc_init(&cbcenc_ctx, key, size);
+  br_aes_esp32_cbcenc_run(&cbcenc_ctx, iv, input, block_size); // block_size must be multiple of 16
+#else
   br_aes_ct_cbcenc_init(&cbcenc_ctx, key, size);
   br_aes_ct_cbcenc_run(&cbcenc_ctx, iv, input, block_size); // block_size must be multiple of 16
+#endif
 
   return 1;
 }
 
 int AES128Class::runDecryption(uint8_t *key, size_t size, uint8_t *input, size_t block_size, uint8_t *iv)
 {
+#ifdef ARDUINO_ARCH_ESP32
+  br_aes_esp32_cbcdec_init(&cbcdec_ctx, key, size);
+  br_aes_esp32_cbcdec_run(&cbcdec_ctx, iv, input, block_size); // block_size must be multiple of 16
+#else
   br_aes_ct_cbcdec_init(&cbcdec_ctx, key, size);
   br_aes_ct_cbcdec_run(&cbcdec_ctx, iv, input, block_size); // block_size must be multiple of 16
+#endif
 
   return 1;
 }

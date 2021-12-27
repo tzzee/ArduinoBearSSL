@@ -1920,6 +1920,40 @@ int br_aes_pwr8_supported(void);
 unsigned br_aes_pwr8_keysched(unsigned char *skni,
 	const void *key, size_t len);
 
+#ifdef ARDUINO_ARCH_ESP32
+/**
+ * \brief CBC encryption with ESP32 hardware accelerated AES.
+ *
+ * \param ctx    context (already initialised).
+ * \param iv     IV (updated).
+ * \param data   data to encrypt (updated).
+ * \param len    data length (in bytes, MUST be multiple of 16).
+ */
+void br_aes_esp32_encrypt_cbc(const br_aes_esp32_cbcenc_keys *ctx, unsigned char *iv, unsigned char *data, size_t len);
+
+/**
+ * \brief CBC decryption with ESP32 hardware accelerated AES.
+ *
+ * \param ctx    context (already initialised).
+ * \param iv     IV (updated).
+ * \param data   data to decrypt (updated).
+ * \param len    data length (in bytes, MUST be multiple of 16).
+ */
+void br_aes_esp32_decrypt_cbc(const br_aes_esp32_cbcdec_keys *ctx, unsigned char *iv, unsigned char *data, size_t len);
+
+/**
+ * \brief CTR encryption and decryption with ESP32 hardware accelerated AES.
+ *
+ * \param ctx    context (already initialised).
+ * \param iv     IV (constant, 12 bytes).
+ * \param cc     initial block counter value.
+ * \param data   data to decrypt (updated).
+ * \param len    data length (in bytes).
+ * \return  new block counter value.
+ */
+uint32_t br_aes_esp32_crypt_ctr(const br_aes_esp32_ctr_keys *ctx, unsigned char *ctr, uint32_t cc, unsigned char *data, size_t len);
+#endif  // ARDUINO_ARCH_ESP32
+
 /* ==================================================================== */
 /*
  * RSA.
