@@ -2151,6 +2151,149 @@ const br_block_ctr_class *br_aes_pwr8_ctr_get_vtable(void);
  */
 const br_block_ctrcbc_class *br_aes_pwr8_ctrcbc_get_vtable(void);
 
+#ifdef ARDUINO_ARCH_ESP32
+/*
+ * ESP32 hardware accelerated AES implementation. The AES Accelerator supports
+ * six algorithms of FIPS PUB 197, specifically AES-128, AES-192
+ * and AES-256 encryption and decryption.
+ */
+
+/** \brief AES block size (16 bytes). */
+#define br_aes_esp32_BLOCK_SIZE   16
+
+/**
+ * \brief Context for AES subkeys (`aes_esp32` implementation, CBC encryption).
+ *
+ * First field is a pointer to the vtable; it is set by the initialisation
+ * function. Other fields are not supposed to be accessed by user code.
+ */
+typedef struct {
+	/** \brief Pointer to vtable for this context. */
+	const br_block_cbcenc_class *vtable;
+#ifndef BR_DOXYGEN_IGNORE
+	unsigned char key[32];
+	size_t len;
+#endif
+} br_aes_esp32_cbcenc_keys;
+
+/**
+ * \brief Context for AES subkeys (`aes_esp32` implementation, CBC decryption).
+ *
+ * First field is a pointer to the vtable; it is set by the initialisation
+ * function. Other fields are not supposed to be accessed by user code.
+ */
+typedef struct {
+	/** \brief Pointer to vtable for this context. */
+	const br_block_cbcdec_class *vtable;
+#ifndef BR_DOXYGEN_IGNORE
+	unsigned char key[32];
+	size_t len;
+#endif
+} br_aes_esp32_cbcdec_keys;
+
+/**
+ * \brief Context for AES subkeys (`aes_esp32` implementation, CTR encryption
+ * and decryption).
+ *
+ * First field is a pointer to the vtable; it is set by the initialisation
+ * function. Other fields are not supposed to be accessed by user code.
+ */
+typedef struct {
+	/** \brief Pointer to vtable for this context. */
+	const br_block_ctr_class *vtable;
+#ifndef BR_DOXYGEN_IGNORE
+	unsigned char key[32];
+	size_t len;
+#endif
+} br_aes_esp32_ctr_keys;
+
+/**
+ * @brief 
+ * 
+ */
+extern const br_block_cbcenc_class br_aes_esp32_cbcenc_vtable;
+
+/**
+ * \brief Class instance for AES CBC decryption (`aes_esp32` implementation).
+ */
+extern const br_block_cbcdec_class br_aes_esp32_cbcdec_vtable;
+
+/**
+ * \brief Class instance for AES CTR encryption and decryption
+ * (`aes_esp32` implementation).
+ */
+extern const br_block_ctr_class br_aes_esp32_ctr_vtable;
+
+/**
+ * \brief Context initialisation (key schedule) for AES CBC encryption
+ * (`aes_esp32` implementation).
+ *
+ * \param ctx   context to initialise.
+ * \param key   secret key.
+ * \param len   secret key length (in bytes).
+ */
+void br_aes_esp32_cbcenc_init(br_aes_esp32_cbcenc_keys *ctx,
+	const void *key, size_t len);
+
+/**
+ * \brief Context initialisation (key schedule) for AES CBC decryption
+ * (`aes_esp32` implementation).
+ *
+ * \param ctx   context to initialise.
+ * \param key   secret key.
+ * \param len   secret key length (in bytes).
+ */
+void br_aes_esp32_cbcdec_init(br_aes_esp32_cbcdec_keys *ctx,
+	const void *key, size_t len);
+
+/**
+ * \brief Context initialisation (key schedule) for AES CTR encryption
+ * and decryption (`aes_esp32` implementation).
+ *
+ * \param ctx   context to initialise.
+ * \param key   secret key.
+ * \param len   secret key length (in bytes).
+ */
+void br_aes_esp32_ctr_init(br_aes_esp32_ctr_keys *ctx,
+	const void *key, size_t len);
+
+/**
+ * \brief CBC encryption with AES (`aes_esp32` implementation).
+ *
+ * \param ctx    context (already initialised).
+ * \param iv     IV (updated).
+ * \param data   data to encrypt (updated).
+ * \param len    data length (in bytes, MUST be multiple of 16).
+ */
+void br_aes_esp32_cbcenc_run(const br_aes_esp32_cbcenc_keys *ctx, void *iv,
+	void *data, size_t len);
+
+/**
+ * \brief CBC decryption with AES (`aes_esp32` implementation).
+ *
+ * \param ctx    context (already initialised).
+ * \param iv     IV (updated).
+ * \param data   data to decrypt (updated).
+ * \param len    data length (in bytes, MUST be multiple of 16).
+ */
+void br_aes_esp32_cbcdec_run(const br_aes_esp32_cbcdec_keys *ctx, void *iv,
+	void *data, size_t len);
+
+/**
+ * \brief CTR encryption and decryption with AES (`aes_esp32` implementation).
+ *
+ * \param ctx    context (already initialised).
+ * \param iv     IV (constant, 12 bytes).
+ * \param cc     initial block counter value.
+ * \param data   data to decrypt (updated).
+ * \param len    data length (in bytes).
+ * \return  new block counter value.
+ */
+uint32_t br_aes_esp32_ctr_run(const br_aes_esp32_ctr_keys *ctx,
+	const void *iv, uint32_t cc, void *data, size_t len);
+
+#endif  // ARDUINO_ARCH_ESP32
+
 /**
  * \brief Aggregate structure large enough to be used as context for
  * subkeys (CBC encryption) for all AES implementations.
@@ -2163,6 +2306,9 @@ typedef union {
 	br_aes_ct64_cbcenc_keys c_ct64;
 	br_aes_x86ni_cbcenc_keys c_x86ni;
 	br_aes_pwr8_cbcenc_keys c_pwr8;
+#ifdef ARDUINO_ARCH_ESP32
+	br_aes_esp32_cbcenc_keys c_esp;
+#endif  // ARDUINO_ARCH_ESP32
 } br_aes_gen_cbcenc_keys;
 
 /**
@@ -2177,6 +2323,9 @@ typedef union {
 	br_aes_ct64_cbcdec_keys c_ct64;
 	br_aes_x86ni_cbcdec_keys c_x86ni;
 	br_aes_pwr8_cbcdec_keys c_pwr8;
+#ifdef ARDUINO_ARCH_ESP32
+	br_aes_esp32_cbcdec_keys c_esp;
+#endif  // ARDUINO_ARCH_ESP32
 } br_aes_gen_cbcdec_keys;
 
 /**
@@ -2191,6 +2340,9 @@ typedef union {
 	br_aes_ct64_ctr_keys c_ct64;
 	br_aes_x86ni_ctr_keys c_x86ni;
 	br_aes_pwr8_ctr_keys c_pwr8;
+#ifdef ARDUINO_ARCH_ESP32
+	br_aes_esp32_ctr_keys c_esp;
+#endif  // ARDUINO_ARCH_ESP32
 } br_aes_gen_ctr_keys;
 
 /**

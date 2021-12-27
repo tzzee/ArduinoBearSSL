@@ -1,5 +1,6 @@
 /*
- * Copyright (c) 2017 Thomas Pornin <pornin@bolet.org>
+ * Copyright (c) 2016 Thomas Pornin <pornin@bolet.org>
+ * Copyright (c) 2021 Kenji Takahashi
  *
  * Permission is hereby granted, free of charge, to any person obtaining 
  * a copy of this software and associated documentation files (the
@@ -22,47 +23,37 @@
  * SOFTWARE.
  */
 
+#ifdef ARDUINO_ARCH_ESP32
 #include "inner.h"
 
-/* see bearssl_ssl.h */
+/* see bearssl_block.h */
 void
-br_ssl_engine_set_default_aes_cbc(br_ssl_engine_context *cc)
+br_aes_esp32_cbcdec_init(br_aes_esp32_cbcdec_keys *ctx,
+	const void *key, size_t len)
 {
-#if BR_AES_X86NI || BR_POWER8
-	const br_block_cbcenc_class *ienc;
-	const br_block_cbcdec_class *idec;
-#endif
-
-	br_ssl_engine_set_cbc(cc,
-		&br_sslrec_in_cbc_vtable,
-		&br_sslrec_out_cbc_vtable);
-#if BR_AES_X86NI
-	ienc = br_aes_x86ni_cbcenc_get_vtable();
-	idec = br_aes_x86ni_cbcdec_get_vtable();
-	if (ienc != NULL && idec != NULL) {
-		br_ssl_engine_set_aes_cbc(cc, ienc, idec);
-		return;
-	}
-#endif
-#if BR_POWER8
-	ienc = br_aes_pwr8_cbcenc_get_vtable();
-	idec = br_aes_pwr8_cbcdec_get_vtable();
-	if (ienc != NULL && idec != NULL) {
-		br_ssl_engine_set_aes_cbc(cc, ienc, idec);
-		return;
-	}
-#endif
-#if BR_64
-	br_ssl_engine_set_aes_cbc(cc,
-		&br_aes_ct64_cbcenc_vtable,
-		&br_aes_ct64_cbcdec_vtable);
-#elif defined(ARDUINO_ARCH_ESP32)
-	br_ssl_engine_set_aes_cbc(cc,
-		&br_aes_esp32_cbcenc_vtable,
-		&br_aes_esp32_cbcdec_vtable);
-#else
-	br_ssl_engine_set_aes_cbc(cc,
-		&br_aes_ct_cbcenc_vtable,
-		&br_aes_ct_cbcdec_vtable);
-#endif
+	ctx->vtable = &br_aes_esp32_cbcdec_vtable;
+	/* if(32 < len) abort(); */
+	memcpy(ctx->key, key, len);
+	ctx->len = len;
 }
+
+/* see bearssl_block.h */
+void
+br_aes_esp32_cbcdec_run(const br_aes_esp32_cbcdec_keys *ctx,
+	void *iv, void *data, size_t len)
+{
+	br_aes_esp32_decrypt_cbc(ctx, (unsigned char*)iv, (unsigned char*)data, len);
+}
+
+/* see bearssl_block.h */
+const br_block_cbcdec_class br_aes_esp32_cbcdec_vtable = {
+	sizeof(br_aes_esp32_cbcdec_keys),
+	16,
+	4,
+	(void (*)(const br_block_cbcdec_class **, const void *, size_t))
+		&br_aes_esp32_cbcdec_init,
+	(void (*)(const br_block_cbcdec_class *const *, void *, void *, size_t))
+		&br_aes_esp32_cbcdec_run
+};
+
+#endif  // ARDUINO_ARCH_ESP32
