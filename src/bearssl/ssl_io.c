@@ -96,6 +96,10 @@ run_until(br_sslio_context *ctx, unsigned target)
 		if (state & target) {
 			return 0;
 		}
+		if ((target & BR_SSL_CLOSIONG) && (state == 0)) {
+			br_ssl_engine_fail(ctx->engine, 0);
+			return 0;
+		}
 
 		/*
 		 * If some application data must be read, and we did not
@@ -311,7 +315,7 @@ br_sslio_close(br_sslio_context *ctx)
 		 */
 		size_t len;
 
-		run_until(ctx, BR_SSL_RECVAPP);
+		run_until(ctx, BR_SSL_RECVAPP | BR_SSL_CLOSIONG);
 		if (br_ssl_engine_recvapp_buf(ctx->engine, &len) != NULL) {
 			br_ssl_engine_recvapp_ack(ctx->engine, len);
 		}

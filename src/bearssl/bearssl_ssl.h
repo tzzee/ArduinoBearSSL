@@ -2016,6 +2016,8 @@ unsigned br_ssl_engine_current_state(const br_ssl_engine_context *cc);
 /** \brief SSL engine state: engine has received application data. */
 #define BR_SSL_RECVAPP   0x0010
 
+#define BR_SSL_CLOSIONG  0x0020
+
 /**
  * \brief Get the engine error indicator.
  *
