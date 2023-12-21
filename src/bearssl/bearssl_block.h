@@ -2151,7 +2151,7 @@ const br_block_ctr_class *br_aes_pwr8_ctr_get_vtable(void);
  */
 const br_block_ctrcbc_class *br_aes_pwr8_ctrcbc_get_vtable(void);
 
-#ifdef ARDUINO_ARCH_ESP32
+#if defined(ARDUINO_ARCH_ESP32) && !ARDUINO_ARCH_ESP32_HW_ACCELERATED_AES_DISABLED
 /*
  * ESP32 hardware accelerated AES implementation. The AES Accelerator supports
  * six algorithms of FIPS PUB 197, specifically AES-128, AES-192
@@ -2306,7 +2306,7 @@ typedef union {
 	br_aes_ct64_cbcenc_keys c_ct64;
 	br_aes_x86ni_cbcenc_keys c_x86ni;
 	br_aes_pwr8_cbcenc_keys c_pwr8;
-#ifdef ARDUINO_ARCH_ESP32
+#if defined(ARDUINO_ARCH_ESP32) && !ARDUINO_ARCH_ESP32_HW_ACCELERATED_AES_DISABLED
 	br_aes_esp32_cbcenc_keys c_esp;
 #endif  // ARDUINO_ARCH_ESP32
 } br_aes_gen_cbcenc_keys;
@@ -2323,7 +2323,7 @@ typedef union {
 	br_aes_ct64_cbcdec_keys c_ct64;
 	br_aes_x86ni_cbcdec_keys c_x86ni;
 	br_aes_pwr8_cbcdec_keys c_pwr8;
-#ifdef ARDUINO_ARCH_ESP32
+#if defined(ARDUINO_ARCH_ESP32) && !ARDUINO_ARCH_ESP32_HW_ACCELERATED_AES_DISABLED
 	br_aes_esp32_cbcdec_keys c_esp;
 #endif  // ARDUINO_ARCH_ESP32
 } br_aes_gen_cbcdec_keys;
@@ -2340,7 +2340,7 @@ typedef union {
 	br_aes_ct64_ctr_keys c_ct64;
 	br_aes_x86ni_ctr_keys c_x86ni;
 	br_aes_pwr8_ctr_keys c_pwr8;
-#ifdef ARDUINO_ARCH_ESP32
+#if defined(ARDUINO_ARCH_ESP32) && !ARDUINO_ARCH_ESP32_HW_ACCELERATED_AES_DISABLED
 	br_aes_esp32_ctr_keys c_esp;
 #endif  // ARDUINO_ARCH_ESP32
 } br_aes_gen_ctr_keys;

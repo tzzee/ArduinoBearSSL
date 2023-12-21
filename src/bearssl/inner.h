@@ -1920,7 +1920,7 @@ int br_aes_pwr8_supported(void);
 unsigned br_aes_pwr8_keysched(unsigned char *skni,
 	const void *key, size_t len);
 
-#ifdef ARDUINO_ARCH_ESP32
+#if defined(ARDUINO_ARCH_ESP32) && !ARDUINO_ARCH_ESP32_HW_ACCELERATED_AES_DISABLED
 /**
  * \brief CBC encryption with ESP32 hardware accelerated AES.
  *

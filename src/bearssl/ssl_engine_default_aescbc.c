@@ -56,7 +56,7 @@ br_ssl_engine_set_default_aes_cbc(br_ssl_engine_context *cc)
 	br_ssl_engine_set_aes_cbc(cc,
 		&br_aes_ct64_cbcenc_vtable,
 		&br_aes_ct64_cbcdec_vtable);
-#elif defined(ARDUINO_ARCH_ESP32)
+#elif defined(ARDUINO_ARCH_ESP32) && !ARDUINO_ARCH_ESP32_HW_ACCELERATED_AES_DISABLED
 	br_ssl_engine_set_aes_cbc(cc,
 		&br_aes_esp32_cbcenc_vtable,
 		&br_aes_esp32_cbcdec_vtable);

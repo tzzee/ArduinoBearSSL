@@ -23,7 +23,7 @@
  * SOFTWARE.
  */
 
-#ifdef ARDUINO_ARCH_ESP32
+#if defined(ARDUINO_ARCH_ESP32) && !ARDUINO_ARCH_ESP32_HW_ACCELERATED_AES_DISABLED
 #include "inner.h"
 #include <hwcrypto/aes.h>
 

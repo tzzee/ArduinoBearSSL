@@ -43,7 +43,7 @@ protected:
   virtual int runDecryption(uint8_t *key, size_t size, uint8_t *input, size_t block_size, uint8_t *iv);
 
 private:
-#ifdef ARDUINO_ARCH_ESP32
+#if defined(ARDUINO_ARCH_ESP32) && !ARDUINO_ARCH_ESP32_HW_ACCELERATED_AES_DISABLED
   br_aes_esp32_cbcenc_keys cbcenc_ctx;
   br_aes_esp32_cbcdec_keys cbcdec_ctx;
 #else

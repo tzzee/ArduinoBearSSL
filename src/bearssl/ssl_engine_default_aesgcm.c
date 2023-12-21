@@ -61,7 +61,7 @@ br_ssl_engine_set_default_aes_gcm(br_ssl_engine_context *cc)
 #else
 #if BR_64
 	br_ssl_engine_set_aes_ctr(cc, &br_aes_ct64_ctr_vtable);
-#elif defined(ARDUINO_ARCH_ESP32)
+#elif defined(ARDUINO_ARCH_ESP32) && !ARDUINO_ARCH_ESP32_HW_ACCELERATED_AES_DISABLED
 	br_ssl_engine_set_aes_ctr(cc, &br_aes_esp32_ctr_vtable);
 #else
 	br_ssl_engine_set_aes_ctr(cc, &br_aes_ct_ctr_vtable);
