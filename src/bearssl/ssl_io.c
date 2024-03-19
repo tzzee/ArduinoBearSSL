@@ -156,6 +156,11 @@ br_sslio_read(br_sslio_context *ctx, void *dst, size_t len)
 	if (len == 0) {
 		return 0;
 	}
+#ifdef ARDUINO
+	if (br_sslio_read_available(ctx) == 0) {
+		return -1;
+	}
+#endif
 	if (run_until(ctx, BR_SSL_RECVAPP) < 0) {
 		return -1;
 	}
